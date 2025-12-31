@@ -6,6 +6,26 @@
     <title>Login - Sistem Laporan Santri</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Tambahan style untuk login */
+        .error-message {
+            display: none;
+            background: #ffeaea;
+            border: 1px solid #ffcccc;
+            color: #d63031;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -40,6 +60,59 @@
         </div>
     </div>
 
-    <script src="js/auth.js"></script>
+    <script>
+        // Data user sementara
+        const users = {
+            'S001': { password: 'pass123', nama: 'Ahmad' },
+            'S002': { password: 'pass456', nama: 'Siti' },
+            'S003': { password: 'demo123', nama: 'Demo' }
+        };
+
+        // Login function
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const idSantri = document.getElementById('idSantri').value.toUpperCase().trim();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset error
+            errorMessage.style.display = 'none';
+            
+            // Validasi
+            if (!idSantri || !password) {
+                errorMessage.textContent = 'Harap isi ID dan password!';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Cek user
+            if (users[idSantri] && users[idSantri].password === password) {
+                // Simpan ke localStorage
+                localStorage.setItem('userData', JSON.stringify({
+                    id: idSantri,
+                    nama: users[idSantri].nama
+                }));
+                
+                // Redirect ke dashboard
+                window.location.href = 'dashboard.html';
+                
+            } else {
+                errorMessage.textContent = 'ID atau password salah!';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Auto focus ke input ID
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('idSantri').focus();
+            
+            // Jika ada data user, langsung redirect ke dashboard
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
 </body>
 </html>
