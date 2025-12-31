@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Laporan Santri</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* DASHBOARD SPECIFIC STYLES */
+        :root {
+            --primary: #1a5f7a;
+            --secondary: #159895;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        /* HEADER */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .header-left p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .user-id {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+        
+        /* MAIN CONTENT */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* WELCOME CARD */
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+        }
+        
+        .welcome-card h2 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .welcome-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .icon-absensi { background: #e3f2fd; color: #1976d2; }
+        .icon-pelanggaran { background: #ffebee; color: #d32f2f; }
+        .icon-prestasi { background: #e8f5e9; color: #388e3c; }
+        .icon-nilai { background: #fff3e0; color: #f57c00; }
+        
+        .stat-info h3 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* TABLES SECTION */
+        .tables-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 1100px) {
+            .tables-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .table-header h3 {
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #eee;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* STATUS BADGES */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .hadir { background: #d4edda; color: #155724; }
+        .izin { background: #fff3cd; color: #856404; }
+        .sakit { background: #d1ecf1; color: #0c5460; }
+        .alpha { background: #f8d7da; color: #721c24; }
+        
+        .point-badge {
+            background: #ffeaa7;
+            color: #e17055;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* LOADING & EMPTY STATES */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* FOOTER */
+        .dashboard-footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 3rem;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem;
+            }
+            
+            .header-right {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .user-info {
+                text-align: center;
+            }
+            
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .tables-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <h1><i class="fas fa-mosque"></i> Pesantren Kakatua</h1>
+            <p>Sistem Laporan Santri Digital</p>
+        </div>
+        
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-id" id="userId">ID: ...</div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-container">
+        <!-- WELCOME CARD -->
+        <div class="welcome-card">
+            <h2>Selamat Datang, <span id="welcomeName">...</span>!</h2>
+            <p>Berikut adalah laporan perkembangan santri terkini. Data diupdate setiap hari oleh admin pesantren.</p>
+        </div>
+
+        <!-- STATISTICS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-absensi">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statKehadiran">0%</h3>
+                    <p>Kehadiran 30 Hari</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-pelanggaran">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statPelanggaran">0</h3>
+                    <p>Pelanggaran Bulan Ini</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-prestasi">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statPrestasi">0</h3>
+                    <p>Prestasi & Penghargaan</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-nilai">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statNilai">-</h3>
+                    <p>Rata-rata Nilai</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLES SECTION -->
+        <div class="tables-section">
+            <!-- ABSENSI TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Riwayat Absensi</h3>
+                    <span class="point-badge">30 Hari Terakhir</span>
+                </div>
+                <div class="table-container">
+                    <table id="absensiTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="loading">
+                                    <i class="fas fa-spinner"></i><br>
+                                    Memuat data absensi...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PELANGGARAN TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Catatan Pelanggaran</h3>
+                    <span class="point-badge">Total: <span id="totalPelanggaran">0</span> poin</span>
+                </div>
+                <div class="table-container">
+                    <table id="pelanggaranTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jenis</th>
+                                <th>Poin</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="loading">
+                                    <i class="fas fa-spinner"></i><br>
+                                    Memuat data pelanggaran...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PRESTASI TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-award"></i> Prestasi & Penghargaan</h3>
+                    <span class="point-badge" style="background: #a29bfe; color: white;">Pencapaian</span>
+                </div>
+                <div class="table-container">
+                    <table id="prestasiTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jenis</th>
+                                <th>Deskripsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="loading">
+                                    <i class="fas fa-spinner"></i><br>
+                                    Memuat data prestasi...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NILAI TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-book-open"></i> Nilai Pelajaran</h3>
+                    <span class="point-badge">Semester 1</span>
+                </div>
+                <div class="table-container">
+                    <table id="nilaiTable">
+                        <thead>
+                            <tr>
+                                <th>Mata Pelajaran</th>
+                                <th>Nilai</th>
+                                <th>Predikat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="loading">
+                                    <i class="fas fa-spinner"></i><br>
+                                    Memuat data nilai...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="dashboard-footer">
+        <p>© 2024 Pesantren Kakatua. Sistem Laporan Santri v1.0</p>
+        <p>Data terakhir diperbarui: <span id="lastUpdated">-</span></p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // ===== DATA DUMMY (NANTI DIGANTI DENGAN GOOGLE SHEETS) =====
+        
+        // Data absensi contoh
+        const absensiData = [
+            { tanggal: '2024-01-15', status: 'Hadir', keterangan: '-' },
+            { tanggal: '2024-01-14', status: 'Hadir', keterangan: '-' },
+            { tanggal: '2024-01-13', status: 'Izin', keterangan: 'Keluarga ada acara' },
+            { tanggal: '2024-01-12', status: 'Hadir', keterangan: '-' },
+            { tanggal: '2024-01-11', status: 'Sakit', keterangan: 'Flu' },
+            { tanggal: '2024-01-10', status: 'Hadir', keterangan: '-' },
+            { tanggal: '2024-01-09', status: 'Hadir', keterangan: '-' },
+            { tanggal: '2024-01-08', status: 'Alpha', keterangan: 'Tidak kabar' }
+        ];
+        
+        // Data pelanggaran contoh
+        const pelanggaranData = [
+            { tanggal: '2024-01-10', jenis: 'Terlambat', poin: 5, keterangan: 'Telat 15 menit' },
+            { tanggal: '2024-01-05', jenis: 'Seragam tidak lengkap', poin: 10, keterangan: 'Lupa peci' },
+            { tanggal: '2024-01-02', jenis: 'Tidak sholat berjamaah', poin: 20, keterangan: 'Sholat sendirian' }
+        ];
+        
+        // Data prestasi contoh
+        const prestasiData = [
+            { tanggal: '2024-01-12', jenis: 'Akademik', deskripsi: 'Juara 1 Lomba Matematika' },
+            { tanggal: '2024-01-08', jenis: 'Non-Akademik', deskripsi: 'Juara 2 Pidato Bahasa Arab' },
+            { tanggal: '2023-12-20', jenis: 'Akademik', deskripsi: 'Nilai tertinggi Ujian Akhir' }
+        ];
+        
+        // Data nilai contoh
+        const nilaiData = [
+            { pelajaran: 'Al-Quran', nilai: 85, predikat: 'A' },
+            { pelajaran: 'Hadits', nilai: 78, predikat: 'B+' },
+            { pelajaran: 'Fiqih', nilai: 92, predikat: 'A' },
+            { pelajaran: 'Bahasa Arab', nilai: 88, predikat: 'A' },
+            { pelajaran: 'Matematika', nilai: 75, predikat: 'B' },
+            { pelajaran: 'IPA', nilai: 80, predikat: 'B+' }
+        ];
+
+        // ===== FUNGSI UTAMA =====
+        
+        // Cek login status
+        function checkLogin() {
+            const userData = localStorage.getItem('userData');
+            if (!userData) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            return JSON.parse(userData);
+        }
+        
+        // Logout function
+        function logout() {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            console.log('Logout:', userData?.id);
+            localStorage.removeItem('userData');
+            window.location.href = 'index.html';
+        }
+        
+        // Format tanggal
+        function formatTanggal(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        // Hitung persentase kehadiran
+        function hitungKehadiran() {
+            const total = absensiData.length;
+            const hadir = absensiData.filter(a => a.status === 'Hadir').length;
+            return Math.round((hadir / total) * 100);
+        }
+        
+        // Hitung total poin pelanggaran
+        function hitungTotalPoin() {
+            return pelanggaranData.reduce((total, item) => total + item.poin, 0);
+        }
+        
+        // Render data ke tabel
+        function renderTables() {
+            const user = checkLogin();
+            if (!user) return;
+            
+            // Update user info
+            document.getElementById('userName').textContent = user.nama || 'Santri';
+            document.getElementById('userId').textContent = `ID: ${user.id}`;
+            document.getElementById('welcomeName').textContent = user.nama || 'Santri';
+            
+            // Update stats
+            document.getElementById('statKehadiran').textContent = `${hitungKehadiran()}%`;
+            document.getElementById('statPelanggaran').textContent = pelanggaranData.length;
+            document.getElementById('statPrestasi').textContent = prestasiData.length;
+            
+            // Hitung rata-rata nilai
+            const rataNilai = nilaiData.reduce((sum, item) => sum + item.nilai, 0) / nilaiData.length;
+            document.getElementById('statNilai').textContent = rataNilai.toFixed(1);
+            
+            // Update total poin pelanggaran
+            document.getElementById('totalPelanggaran').textContent = hitungTotalPoin();
+            
+            // Update last updated
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Render tabel absensi
+            const absensiTbody = document.querySelector('#absensiTable tbody');
+            absensiTbody.innerHTML = '';
+            
+            if (absensiData.length === 0) {
+                absensiTbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            <i class="fas fa-calendar-times"></i><br>
+                            Tidak ada data absensi
+                        </td>
+                    </tr>
+                `;
+            } else {
+                absensiData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatTanggal(item.tanggal)}</td>
+                        <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                        <td>${item.keterangan}</td>
+                    `;
+                    absensiTbody.appendChild(row);
+                });
+            }
+            
+            // Render tabel pelanggaran
+            const pelanggaranTbody = document.querySelector('#pelanggaranTable tbody');
+            pelanggaranTbody.innerHTML = '';
+            
+            if (pelanggaranData.length === 0) {
+                pelanggaranTbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="fas fa-check-circle"></i><br>
+                            Tidak ada pelanggaran
+                        </td>
+                    </tr>
+                `;
+            } else {
+                pelanggaranData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatTanggal(item.tanggal)}</td>
+                        <td>${item.jenis}</td>
+                        <td><span class="point-badge">${item.poin} poin</span></td>
+                        <td>${item.keterangan}</td>
+                    `;
+                    pelanggaranTbody.appendChild(row);
+                });
+            }
+            
+            // Render tabel prestasi
+            const prestasiTbody = document.querySelector('#prestasiTable tbody');
+            prestasiTbody.innerHTML = '';
+            
+            if (prestasiData.length === 0) {
+                prestasiTbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            <i class="fas fa-trophy"></i><br>
+                            Belum ada prestasi
+                        </td>
+                    </tr>
+                `;
+            } else {
+                prestasiData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatTanggal(item.tanggal)}</td>
+                        <td>${item.jenis}</td>
+                        <td>${item.deskripsi}</td>
+                    `;
+                    prestasiTbody.appendChild(row);
+                });
+            }
+            
+            // Render tabel nilai
+            const nilaiTbody = document.querySelector('#nilaiTable tbody');
+            nilaiTbody.innerHTML = '';
+            
+            nilaiData.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Tentukan warna berdasarkan predikat
+                let color = '#666';
+                if (item.predikat === 'A') color = '#27ae60';
+                else if (item.predikat === 'B+') color = '#3498db';
+                else if (item.predikat === 'B') color = '#f39c12';
+                
+                row.innerHTML = `
+                    <td>${item.pelajaran}</td>
+                    <td style="font-weight: 600; color: ${color}">${item.nilai}</td>
+                    <td><span style="color: ${color}; font-weight: 600">${item.predikat}</span></td>
+                `;
+                nilaiTbody.appendChild(row);
+            });
+        }
+        
+        // Inisialisasi saat page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTables();
+            
+            // Auto-refresh setiap 30 detik (untuk development)
+            setInterval(() => {
+                console.log('Auto-refresh data...');
+                renderTables();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
